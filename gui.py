@@ -71,7 +71,7 @@ class ModernStyle:
 class WindsurfAutomationGUI:
     def __init__(self):
         self.root = tk.Tk()
-        self.root.title("Windsurf Automation v0.3.0")
+        self.root.title("Windsurf Automation v1.2.2")
         self.root.geometry("800x600")
         self.root.configure(bg=ModernStyle.BG_DARK)
         self.root.resizable(True, True)
@@ -106,7 +106,7 @@ class WindsurfAutomationGUI:
                         fg=ModernStyle.FG_TEXT, bg=ModernStyle.BG_DARK)
         title.pack(side=tk.LEFT)
         
-        version = tk.Label(header, text="v1.0.0", 
+        version = tk.Label(header, text="v1.2.2", 
                           font=ModernStyle.FONT_SUBTITLE,
                           fg=ModernStyle.FG_MUTED, bg=ModernStyle.BG_DARK)
         version.pack(side=tk.LEFT, padx=10)
