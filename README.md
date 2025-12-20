@@ -1,4 +1,4 @@
-# Windsurf Automation v1.0.2
+# Windsurf Automation v1.2.0
 
 Автоматизация Windsurf IDE для итеративных задач с бесплатными ИИ моделями.
 
@@ -8,12 +8,17 @@
 - **Отправка промптов** - Автоматическая вставка в Cascade чат
 - **Очередь задач** - Выполнение задач последовательно
 - **Современный GUI** - Тёмная тема, удобное управление
-- **Логирование** - Все действия в `logs/`
+- **Логирование** - DEBUG/INFO уровни в `logs/`
+- **Кнопка теста** - Запуск tests/auto_test.py из GUI
+- **Прогресс-бар** - Визуализация выполнения задач
+- **Звуковые уведомления** - При завершении задачи
+- **Конфигурация** - Настройки в config.json
+- **Boss/Worker система** - Управление GPT рабочими
 
 ## ⚠️ Ограничения
 
-- Модель нужно выбирать **вручную** (автовыбор не работает надёжно)
-- Нет мониторинга завершения задачи (пока)
+- Автоматическое открытие окон нестабильно на мульти-мониторе
+- Рекомендуется открывать рабочие окна вручную
 
 ## 🎯 Purpose
 
@@ -45,16 +50,23 @@ This tool helps offload routine tasks from your main AI by automating interactio
 ```
 Windsurf-Automation/
 ├── gui.py              # Modern GUI (recommended)
-├── run.py              # Console UI
+├── boss.py             # Boss/Worker system for GPT management
+├── hire_workers.py     # Send tasks to multiple windows
+├── quick_task.py       # Quick task sender
+├── self_improve.py     # Self-improvement system
+├── config.json         # Settings
+├── CHANGELOG.md        # Version history
 ├── run.bat             # Quick launcher
 ├── requirements.txt    # Dependencies
 ├── src/
-│   └── windsurf_automation.py  # Core automation
+│   ├── windsurf_automation.py  # Core automation
+│   └── config.py       # Config loader
 ├── tasks/
 │   └── tasks.json      # Task list
-├── logs/               # Log files
+├── logs/               # Log files (DEBUG level)
 └── tests/
-    └── test_automation.py  # Tests
+    ├── auto_test.py    # Automated tests
+    └── test_automation.py
 ```
 
 ## 🛠️ Requirements
