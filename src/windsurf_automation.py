@@ -281,25 +281,36 @@ class WindsurfAutomation:
         time.sleep(0.5)
         return True
     
-    def run_task(self, prompt: str, model: str = None, close_after: bool = False) -> bool:
-        """Выполнить полную задачу: открыть окно, отправить промпт
+    def run_task(self, prompt: str, model: str = None, close_after: bool = False, use_existing: bool = True) -> bool:
+        """Выполнить задачу: отправить промпт в Cascade
         
         Args:
             prompt: Текст промпта для ИИ
             model: Название модели (для информации)
             close_after: Закрыть окно после отправки
+            use_existing: Использовать существующее окно (не открывать новое)
         """
         model = model or self.current_model
         
         self.log("🚀 Запуск задачи...")
         
-        # 1. Открыть новое окно
-        self.log("1️⃣ Открываю новое окно...")
-        if not self.open_new_window():
-            self.log("❌ Не удалось открыть окно")
-            return False
-        
-        time.sleep(2)
+        if use_existing:
+            # Используем существующее окно с проектом
+            self.log("1️⃣ Использую существующее окно...")
+            if not self.hwnd:
+                windows = find_windsurf_windows(ide_only=True)
+                if windows:
+                    self.hwnd, self.title = windows[0]
+                else:
+                    self.log("❌ Windsurf не найден")
+                    return False
+        else:
+            # Открыть новое окно
+            self.log("1️⃣ Открываю новое окно...")
+            if not self.open_new_window():
+                self.log("❌ Не удалось открыть окно")
+                return False
+            time.sleep(2)
         
         # 2. Активируем окно
         if not self.activate_window():
@@ -308,18 +319,13 @@ class WindsurfAutomation:
         
         time.sleep(0.5)
         
-        # 3. Закрыть Welcome вкладку через Ctrl+W
-        self.log("   Закрываю Welcome вкладку...")
-        keyboard.send('ctrl+w')
-        time.sleep(0.5)
-        
-        # 4. Открыть sidebar
+        # 3. Открыть sidebar
         self.log("2️⃣ Открываю Cascade sidebar...")
         keyboard.send('ctrl+l')
         time.sleep(1.5)
         
         # 4. Напоминание о модели
-        self.log(f"⚠️ Выберите модель: {model}")
+        self.log(f"⚠️ Модель: {model}")
         
         # 5. Отправить промпт
         self.log("3️⃣ Отправляю промпт...")

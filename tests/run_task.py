@@ -59,8 +59,8 @@ def main():
         print("\n❌ Отменено")
         return
     
-    print("\n🚀 Запускаю задачу...")
-    success = wa.run_task(prompt, model="GPT-5.1-Codex", close_after=False)
+    print("\n🚀 Запускаю задачу (использую существующее окно)...")
+    success = wa.run_task(prompt, model="GPT-5.1-Codex", close_after=False, use_existing=True)
     
     if success:
         print("\n✅ Задача отправлена!")
