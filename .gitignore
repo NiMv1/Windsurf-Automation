@@ -25,6 +25,8 @@ logs/
 
 # Screenshots (for debugging)
 screenshots/
+test_screenshots/*.png
+test_screenshots/*.md
 
 # Config with secrets
 config.local.json
