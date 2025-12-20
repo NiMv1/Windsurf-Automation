@@ -5,7 +5,8 @@
 
 import time
 import sys
-sys.path.insert(0, 'src')
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 from windsurf_automation import WindsurfAutomation, find_windsurf_windows
 

@@ -1,0 +1,19 @@
+{
+  "version": "1.0",
+  "description": "Список задач для Windsurf Automation",
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Пример задачи",
+      "prompt": "Напиши Hello World на Python",
+      "model": "SWE-1",
+      "status": "pending",
+      "priority": "low",
+      "created": "2024-12-20"
+    }
+  ],
+  "models": {
+    "free": ["SWE-1", "GPT-5.1-Codex", "Grok Code Fast 1"],
+    "default": "SWE-1"
+  }
+}
