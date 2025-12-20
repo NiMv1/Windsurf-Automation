@@ -131,47 +131,36 @@ class WindsurfAutomationGUI:
         content = tk.Frame(main_frame, bg=ModernStyle.BG_DARK)
         content.pack(fill=tk.BOTH, expand=True)
         
-        # Левая колонка - Действия
+        # Левая колонка - Окна и запуск
         left_col = tk.Frame(content, bg=ModernStyle.BG_DARK, width=350)
         left_col.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 10))
         
-        # Карточка "Быстрые действия"
-        actions_card = self.create_card(left_col, "⚡ Быстрые действия")
-        
-        self.btn_quick = self.create_button(actions_card, "🚀 Открыть окно + Sidebar", 
-                                           self.quick_run, ModernStyle.BG_PRIMARY)
-        self.btn_quick.pack(fill=tk.X, pady=5)
-        
-        self.btn_sidebar = self.create_button(actions_card, "📋 Открыть Sidebar", 
-                                             self.open_sidebar, ModernStyle.BG_BUTTON)
-        self.btn_sidebar.pack(fill=tk.X, pady=5)
-        
-        self.btn_send = self.create_button(actions_card, "💬 Отправить сообщение", 
-                                          self.send_message_dialog, ModernStyle.BG_BUTTON)
-        self.btn_send.pack(fill=tk.X, pady=5)
-        
-        self.btn_full_task = self.create_button(actions_card, "⚡ Полный цикл (окно+модель+промпт)", 
-                                               self.full_task_dialog, ModernStyle.BG_SUCCESS)
-        self.btn_full_task.pack(fill=tk.X, pady=5)
-        
         # Карточка "Окна Windsurf"
-        windows_card = self.create_card(left_col, "🪟 Окна Windsurf")
+        windows_card = self.create_card(left_col, "🪟 Окна Windsurf (двойной клик = фокус)")
         
         self.windows_listbox = tk.Listbox(windows_card, 
                                           font=ModernStyle.FONT_MONO,
                                           bg=ModernStyle.BG_DARK,
                                           fg=ModernStyle.FG_TEXT,
                                           selectbackground=ModernStyle.BG_PRIMARY,
-                                          height=5,
+                                          height=6,
                                           borderwidth=0,
                                           highlightthickness=1,
                                           highlightbackground=ModernStyle.BG_BUTTON)
         self.windows_listbox.pack(fill=tk.X, pady=5)
         self.windows_listbox.bind('<<ListboxSelect>>', self.on_window_select)
+        self.windows_listbox.bind('<Double-Button-1>', self.on_window_double_click)
         
-        btn_refresh = self.create_button(windows_card, "🔄 Обновить", 
+        btn_refresh = self.create_button(windows_card, "🔄 Обновить список", 
                                         self.refresh_windows, ModernStyle.BG_BUTTON)
         btn_refresh.pack(fill=tk.X, pady=5)
+        
+        # Карточка "Запуск задачи"
+        run_card = self.create_card(left_col, "🚀 Запуск задачи")
+        
+        self.btn_full_task = self.create_button(run_card, "⚡ Новое окно + Промпт", 
+                                               self.full_task_dialog, ModernStyle.BG_SUCCESS)
+        self.btn_full_task.pack(fill=tk.X, pady=5)
         
         # Правая колонка - Задачи
         right_col = tk.Frame(content, bg=ModernStyle.BG_DARK, width=350)
@@ -314,6 +303,22 @@ class WindsurfAutomationGUI:
                 self.wa.hwnd, self.wa.title = windows[selection[0]]
                 self.log(f"Выбрано окно: {self.wa.title[:40]}...")
     
+    def on_window_double_click(self, event):
+        """Двойной клик - переключить фокус на окно"""
+        selection = self.windows_listbox.curselection()
+        if selection:
+            windows = find_windsurf_windows(ide_only=True)
+            if selection[0] < len(windows):
+                self.wa.hwnd, self.wa.title = windows[selection[0]]
+                self.log(f"🔄 Переключаюсь на: {self.wa.title[:40]}...")
+                
+                def activate():
+                    from windsurf_automation import activate_window_by_hwnd
+                    activate_window_by_hwnd(self.wa.hwnd)
+                    self.log("✅ Окно активировано")
+                
+                threading.Thread(target=activate, daemon=True).start()
+    
     def load_tasks(self):
         """Загрузить задачи"""
         self.tasks_listbox.delete(0, tk.END)
@@ -326,78 +331,6 @@ class WindsurfAutomationGUI:
                 for task in tasks:
                     status_icon = "✅" if task['status'] == 'completed' else "⏳" if task['status'] == 'in_progress' else "📌"
                     self.tasks_listbox.insert(tk.END, f"{status_icon} [{task['id']}] {task['title']} ({task['model']})")
-    
-    def quick_run(self):
-        """Быстрый запуск - новое окно + sidebar"""
-        def run():
-            self.log("🚀 Открываю новое окно...")
-            self.btn_quick.configure(state=tk.DISABLED)
-            
-            if self.wa.open_new_window():
-                self.log("✅ Окно открыто")
-                time.sleep(1)
-                
-                self.log("📋 Открываю sidebar...")
-                if self.wa.open_sidebar():
-                    self.log("✅ Sidebar открыт")
-                    self.log("⚠️ Выберите модель вручную!")
-                else:
-                    self.log("❌ Не удалось открыть sidebar")
-            else:
-                self.log("❌ Не удалось открыть окно")
-            
-            self.btn_quick.configure(state=tk.NORMAL)
-            self.refresh_windows()
-        
-        threading.Thread(target=run, daemon=True).start()
-    
-    def open_sidebar(self):
-        """Открыть sidebar"""
-        def run():
-            self.log("📋 Открываю sidebar...")
-            if self.wa.open_sidebar():
-                self.log("✅ Sidebar открыт")
-            else:
-                self.log("❌ Не удалось открыть sidebar")
-        
-        threading.Thread(target=run, daemon=True).start()
-    
-    def send_message_dialog(self):
-        """Диалог отправки сообщения"""
-        dialog = tk.Toplevel(self.root)
-        dialog.title("Отправить сообщение")
-        dialog.geometry("500x200")
-        dialog.configure(bg=ModernStyle.BG_DARK)
-        dialog.transient(self.root)
-        dialog.grab_set()
-        
-        tk.Label(dialog, text="Введите сообщение:",
-                font=ModernStyle.FONT_TEXT,
-                fg=ModernStyle.FG_TEXT, bg=ModernStyle.BG_DARK).pack(pady=10)
-        
-        text_entry = tk.Text(dialog, height=4,
-                            font=ModernStyle.FONT_TEXT,
-                            bg=ModernStyle.BG_CARD,
-                            fg=ModernStyle.FG_TEXT,
-                            insertbackground=ModernStyle.FG_TEXT)
-        text_entry.pack(fill=tk.X, padx=20, pady=10)
-        
-        def send():
-            message = text_entry.get("1.0", tk.END).strip()
-            if message:
-                dialog.destroy()
-                self.log(f"💬 Отправляю: {message[:50]}...")
-                
-                def run():
-                    if self.wa.send_message(message):
-                        self.log("✅ Сообщение отправлено")
-                    else:
-                        self.log("❌ Не удалось отправить")
-                
-                threading.Thread(target=run, daemon=True).start()
-        
-        btn = self.create_button(dialog, "📤 Отправить", send, ModernStyle.BG_PRIMARY)
-        btn.pack(pady=10)
     
     def add_task_dialog(self):
         """Диалог добавления задачи"""

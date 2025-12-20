@@ -264,36 +264,12 @@ class WindsurfAutomation:
         return True
     
     def select_model(self, model_name: str) -> bool:
-        """Выбор модели через Command Palette
+        """Выбор модели - пока требует ручного выбора
         
-        Windsurf использует Ctrl+/ для открытия меню моделей
+        TODO: Автоматический выбор модели пока не работает надёжно
         """
-        if not self.activate_window():
-            return False
-        
-        self.log(f"   Выбираю модель: {model_name}")
-        
-        # Открываем sidebar сначала
-        keyboard.send('ctrl+l')
-        time.sleep(0.5)
-        
-        # Открываем меню выбора модели (Ctrl+/)
-        keyboard.send('ctrl+/')
-        time.sleep(0.5)
-        
-        # Вводим название модели для поиска
-        pyperclip.copy(model_name)
-        pyautogui.hotkey('ctrl', 'v')
-        time.sleep(0.3)
-        
-        # Выбираем первый результат
-        pyautogui.press('down')
-        time.sleep(0.1)
-        pyautogui.press('enter')
-        time.sleep(0.3)
-        
         self.current_model = model_name
-        self.log(f"✅ Модель {model_name} выбрана")
+        self.log(f"⚠️ Выберите модель вручную: {model_name}")
         return True
     
     def close_window(self) -> bool:
@@ -306,11 +282,11 @@ class WindsurfAutomation:
         return True
     
     def run_task(self, prompt: str, model: str = None, close_after: bool = False) -> bool:
-        """Выполнить полную задачу: открыть окно, выбрать модель, отправить промпт
+        """Выполнить полную задачу: открыть окно, отправить промпт
         
         Args:
             prompt: Текст промпта для ИИ
-            model: Название модели (по умолчанию SWE-1)
+            model: Название модели (для информации)
             close_after: Закрыть окно после отправки
         """
         model = model or self.current_model
@@ -323,36 +299,35 @@ class WindsurfAutomation:
             self.log("❌ Не удалось открыть окно")
             return False
         
-        time.sleep(1)
+        time.sleep(1.5)
         
-        # 2. Открыть sidebar
-        self.log("2️⃣ Открываю Cascade sidebar...")
-        if not self.open_sidebar():
-            self.log("❌ Не удалось открыть sidebar")
+        # 2. Активируем окно и кликаем для фокуса
+        if not self.activate_window():
+            self.log("❌ Не удалось активировать окно")
             return False
         
         time.sleep(0.5)
         
-        # 3. Выбрать модель
-        self.log(f"3️⃣ Выбираю модель {model}...")
-        if not self.select_model(model):
-            self.log("⚠️ Не удалось выбрать модель автоматически")
-            # Продолжаем - пользователь выберет вручную
+        # 3. Открыть sidebar
+        self.log("2️⃣ Открываю Cascade sidebar...")
+        keyboard.send('ctrl+l')
+        time.sleep(1)
         
+        # 4. Напоминание о модели
+        self.log(f"⚠️ Выберите модель: {model}")
+        
+        # 5. Отправить промпт
+        self.log("3️⃣ Отправляю промпт...")
+        
+        # Вставляем текст
+        pyperclip.copy(prompt)
+        time.sleep(0.2)
+        keyboard.send('ctrl+v')
         time.sleep(0.5)
         
-        # 4. Отправить промпт
-        self.log("4️⃣ Отправляю промпт...")
-        
-        # Убедимся что sidebar открыт
-        keyboard.send('ctrl+l')
+        # Отправляем
+        keyboard.send('enter')
         time.sleep(0.3)
-        
-        # Вставляем и отправляем
-        pyperclip.copy(prompt)
-        pyautogui.hotkey('ctrl', 'v')
-        time.sleep(0.2)
-        pyautogui.press('enter')
         
         self.log("✅ Задача отправлена!")
         
