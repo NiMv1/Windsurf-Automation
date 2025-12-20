@@ -4,6 +4,56 @@
   "tasks": [
     {
       "id": 1,
+      "title": "Ледяной голем - новый враг",
+      "prompt": "Проект: C:/Users/bnex4/Documents/slime-rpg ЗАДАЧА: Создай нового врага Ледяной голем. Файл: game/enemies/ice_golem.gd. HP: 150, Скорость: 50, Урон: 30. Способности: Ледяной удар (замораживает на 2 сек), Ледяная броня (-30% урона). Иммунитет к холоду, слабость к огню. Комментарии на русском.",
+      "model": "GPT-5.1-Codex",
+      "status": "pending",
+      "priority": "high",
+      "created": "2025-12-20",
+      "category": "game"
+    },
+    {
+      "id": 2,
+      "title": "Ледяная пещера - локация",
+      "prompt": "Проект: C:/Users/bnex4/Documents/slime-rpg ЗАДАЧА: Создай локацию Ледяная пещера. Файл: scenes/levels/ice_cave.tscn и ice_cave.gd. Опасности: скользкий лёд, падающие сосульки, ледяные ямы. Враги: ледяные големы, снежные волки. Визуал: голубой, белый, кристаллы льда. Комментарии на русском.",
+      "model": "GPT-5.1-Codex",
+      "status": "pending",
+      "priority": "high",
+      "created": "2025-12-20",
+      "category": "game"
+    },
+    {
+      "id": 3,
+      "title": "Король Льда - босс",
+      "prompt": "Проект: C:/Users/bnex4/Documents/slime-rpg ЗАДАЧА: Создай босса Король Льда. Файл: game/enemies/ice_king.gd. HP: 500, 3 фазы боя. Фаза 1: ледяные снаряды. Фаза 2: призыв ледяных големов. Фаза 3: ледяной шторм (AOE). Комментарии на русском.",
+      "model": "GPT-5.1-Codex",
+      "status": "pending",
+      "priority": "high",
+      "created": "2025-12-20",
+      "category": "game"
+    },
+    {
+      "id": 4,
+      "title": "Телепортация - способность",
+      "prompt": "Проект: C:/Users/bnex4/Documents/slime-rpg ЗАДАЧА: Создай способность Телепортация. Файл: game/abilities/teleport.gd. Мгновенное перемещение на 150px в направлении курсора. Кулдаун: 8 сек. Мана: 20. При телепортации - неуязвимость 0.2 сек. Комментарии на русском.",
+      "model": "GPT-5.1-Codex",
+      "status": "pending",
+      "priority": "medium",
+      "created": "2025-12-20",
+      "category": "game"
+    },
+    {
+      "id": 5,
+      "title": "Улучшить WA - мониторинг git",
+      "prompt": "Проект: C:/Users/bnex4/CascadeProjects/Windsurf-Automation ЗАДАЧА: Добавь мониторинг git изменений в gui.py. Таймер каждые 30 сек проверяет git diff. Если есть изменения - показывай в логе. Кнопка Принять изменения делает git add + commit. Комментарии на русском.",
+      "model": "GPT-5.1-Codex",
+      "status": "pending",
+      "priority": "medium",
+      "created": "2025-12-20",
+      "category": "wa"
+    },
+    {
+      "id": 6,
       "title": "Пример задачи",
       "prompt": "Напиши Hello World на Python",
       "model": "SWE-1",
@@ -12,7 +62,7 @@
       "created": "2024-12-20"
     },
     {
-      "id": 2,
+      "id": 7,
       "title": "Тестовое сообщение",
       "prompt": "Тест",
       "model": "SWE-1",
