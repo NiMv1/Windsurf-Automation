@@ -131,6 +131,26 @@ def open_new_windsurf_window():
     return None, None
 
 
+def select_model(hwnd, model_name="GPT-5.1-Codex"):
+    """Выбрать модель через Ctrl+/ и поиск"""
+    print(f"   Выбираю модель: {model_name}...")
+    
+    # Ctrl+/ открывает Model Selector
+    keyboard.send('ctrl+/')
+    time.sleep(1)
+    
+    # Вводим название модели для поиска
+    pyperclip.copy(model_name)
+    keyboard.send('ctrl+v')
+    time.sleep(0.5)
+    
+    # Enter для выбора
+    keyboard.send('enter')
+    time.sleep(0.5)
+    
+    print(f"   ✅ Модель {model_name} выбрана")
+
+
 def send_task_to_window(hwnd, prompt, model="GPT-5.1-Codex"):
     """Отправить задачу в указанное окно Windsurf (только hotkeys, без кликов)"""
     print(f"\n2️⃣ Отправляю задачу в окно {hwnd}...")
@@ -144,6 +164,10 @@ def send_task_to_window(hwnd, prompt, model="GPT-5.1-Codex"):
     keyboard.send('ctrl+l')
     time.sleep(2)
     
+    # Выбираем модель через Ctrl+/
+    select_model(hwnd, model)
+    time.sleep(0.5)
+    
     # Вставляем промпт через clipboard
     print("   Вставляю промпт (Ctrl+V)...")
     pyperclip.copy(prompt)
@@ -155,8 +179,7 @@ def send_task_to_window(hwnd, prompt, model="GPT-5.1-Codex"):
     keyboard.send('enter')
     time.sleep(1)
     
-    print(f"✅ Задача отправлена!")
-    print(f"⚠️ ВРУЧНУЮ выбери модель: {model}")
+    print(f"✅ Задача отправлена с моделью {model}!")
     
     return True
 
