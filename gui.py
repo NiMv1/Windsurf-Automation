@@ -19,6 +19,7 @@ from datetime import datetime
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
 from windsurf_automation import WindsurfAutomation, find_windsurf_windows
+from config import load_config, save_config, get_setting, set_setting
 
 # Настройка логирования в файл
 LOG_DIR = os.path.join(os.path.dirname(__file__), 'logs')
@@ -83,8 +84,10 @@ class WindsurfAutomationGUI:
         
         self.wa = WindsurfAutomation()
         self.tasks_file = os.path.join(os.path.dirname(__file__), 'tasks', 'tasks.json')
+        self.config = load_config()  # Загружаем настройки
         
         self.setup_ui()
+        self.apply_config()  # Применяем настройки к GUI
         self.refresh_windows()
         self.load_tasks()
     
@@ -286,6 +289,28 @@ class WindsurfAutomationGUI:
         btn.bind("<Leave>", on_leave)
         
         return btn
+    
+    def apply_config(self):
+        """Применить настройки из config.json к GUI"""
+        try:
+            # Модель
+            model = self.config.get('model', 'GPT-5.1-Codex')
+            self.model_var.set(model)
+            
+            # Звук
+            sound = self.config.get('sound_enabled', True)
+            self.sound_var.set(sound)
+            
+            logger.debug(f"Config applied: model={model}, sound={sound}")
+        except Exception as e:
+            logger.error(f"Error applying config: {e}")
+    
+    def save_current_config(self):
+        """Сохранить текущие настройки GUI в config.json"""
+        self.config['model'] = self.model_var.get()
+        self.config['sound_enabled'] = self.sound_var.get()
+        save_config(self.config)
+        logger.debug("Config saved")
     
     def log(self, message):
         """Добавить сообщение в лог"""
