@@ -1,14 +1,19 @@
-# Windsurf Automation v1.0
+# Windsurf Automation v1.0.2
 
-Automation tool for Windsurf IDE to help with iterative coding tasks using free AI models.
+Автоматизация Windsurf IDE для итеративных задач с бесплатными ИИ моделями.
 
-## ✅ Features
+## ✅ Возможности
 
-- **Automatic window management** - Open new Windsurf windows
-- **Model selection** - Auto-select free models (SWE-1, GPT-5.1-Codex, Grok)
-- **Task queue** - Run multiple tasks sequentially
-- **Modern GUI** - Dark theme with intuitive controls
-- **Logging** - All actions logged to `logs/` folder
+- **Управление окнами** - Открытие новых окон Windsurf
+- **Отправка промптов** - Автоматическая вставка в Cascade чат
+- **Очередь задач** - Выполнение задач последовательно
+- **Современный GUI** - Тёмная тема, удобное управление
+- **Логирование** - Все действия в `logs/`
+
+## ⚠️ Ограничения
+
+- Модель нужно выбирать **вручную** (автовыбор не работает надёжно)
+- Нет мониторинга завершения задачи (пока)
 
 ## 🎯 Purpose
 

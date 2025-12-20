@@ -311,22 +311,30 @@ class WindsurfAutomation:
         # 3. Открыть sidebar
         self.log("2️⃣ Открываю Cascade sidebar...")
         keyboard.send('ctrl+l')
-        time.sleep(1)
+        time.sleep(1.5)
         
         # 4. Напоминание о модели
         self.log(f"⚠️ Выберите модель: {model}")
         
         # 5. Отправить промпт
         self.log("3️⃣ Отправляю промпт...")
+        self.log(f"   Текст: {prompt[:100]}...")
         
-        # Вставляем текст
+        # Кликаем в область ввода чата (центр окна, нижняя часть)
+        rect = get_window_rect(self.hwnd)
+        chat_x = (rect[0] + rect[2]) // 2 + 200  # Правее центра (там sidebar)
+        chat_y = rect[3] - 100  # Внизу окна
+        pyautogui.click(chat_x, chat_y)
+        time.sleep(0.3)
+        
+        # Вставляем текст через clipboard
         pyperclip.copy(prompt)
-        time.sleep(0.2)
-        keyboard.send('ctrl+v')
+        time.sleep(0.1)
+        pyautogui.hotkey('ctrl', 'v')
         time.sleep(0.5)
         
         # Отправляем
-        keyboard.send('enter')
+        pyautogui.press('enter')
         time.sleep(0.3)
         
         self.log("✅ Задача отправлена!")

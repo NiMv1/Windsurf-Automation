@@ -1,0 +1,46 @@
+{
+  "description": "Задачи для самоулучшения WA",
+  "version": "1.0",
+  "tasks": [
+    {
+      "id": 101,
+      "title": "Добавить проверку вставки текста",
+      "prompt": "Ты работаешь над проектом Windsurf Automation.\nПуть: C:\\Users\\bnex4\\CascadeProjects\\Windsurf-Automation\n\nЗАДАЧА: В файле src/windsurf_automation.py в методе run_task() добавь проверку что текст промпта действительно вставился в поле ввода. Если не вставился - повтори попытку 3 раза.\n\nТРЕБОВАНИЯ:\n1. Изменяй только src/windsurf_automation.py\n2. Не ломай существующий функционал\n3. Добавляй комментарии на русском\n\nОТЧЁТ (обязательно в конце):\n## Сделано:\n- ...\n\n## Не сделано:\n- ...\n\n## Проблемы:\n- ...",
+      "model": "GPT-5.1-Codex",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "id": 102,
+      "title": "Добавить систему отчётов",
+      "prompt": "Ты работаешь над проектом Windsurf Automation.\nПуть: C:\\Users\\bnex4\\CascadeProjects\\Windsurf-Automation\n\nЗАДАЧА: Создай файл src/reports.py с классом ReportGenerator который:\n1. Создаёт отчёт после выполнения задачи\n2. Сохраняет в папку reports/ с датой в имени\n3. Формат: что сделано, что не сделано, ошибки\n\nТРЕБОВАНИЯ:\n1. Создай новый файл src/reports.py\n2. Не изменяй другие файлы\n3. Комментарии на русском\n\nОТЧЁТ (обязательно в конце):\n## Сделано:\n- ...\n\n## Не сделано:\n- ...\n\n## Проблемы:\n- ...",
+      "model": "GPT-5.1-Codex",
+      "status": "pending",
+      "priority": "medium"
+    },
+    {
+      "id": 103,
+      "title": "Добавить прогресс-бар в GUI",
+      "prompt": "Ты работаешь над проектом Windsurf Automation.\nПуть: C:\\Users\\bnex4\\CascadeProjects\\Windsurf-Automation\n\nЗАДАЧА: В файле gui.py добавь прогресс-бар (ttk.Progressbar) который показывает прогресс выполнения задачи. Прогресс должен обновляться на каждом шаге run_task.\n\nТРЕБОВАНИЯ:\n1. Изменяй только gui.py\n2. Используй ttk.Progressbar\n3. Комментарии на русском\n\nОТЧЁТ (обязательно в конце):\n## Сделано:\n- ...\n\n## Не сделано:\n- ...\n\n## Проблемы:\n- ...",
+      "model": "GPT-5.1-Codex",
+      "status": "pending",
+      "priority": "medium"
+    },
+    {
+      "id": 104,
+      "title": "Добавить звуковое уведомление",
+      "prompt": "Ты работаешь над проектом Windsurf Automation.\nПуть: C:\\Users\\bnex4\\CascadeProjects\\Windsurf-Automation\n\nЗАДАЧА: Добавь звуковое уведомление при завершении задачи. Используй winsound.Beep() или winsound.PlaySound(). Добавь чекбокс в GUI для включения/выключения звука.\n\nТРЕБОВАНИЯ:\n1. Изменяй gui.py\n2. Используй стандартную библиотеку winsound\n3. Комментарии на русском\n\nОТЧЁТ (обязательно в конце):\n## Сделано:\n- ...\n\n## Не сделано:\n- ...\n\n## Проблемы:\n- ...",
+      "model": "GPT-5.1-Codex",
+      "status": "pending",
+      "priority": "low"
+    },
+    {
+      "id": 105,
+      "title": "Добавить настройки в JSON",
+      "prompt": "Ты работаешь над проектом Windsurf Automation.\nПуть: C:\\Users\\bnex4\\CascadeProjects\\Windsurf-Automation\n\nЗАДАЧА: Создай файл config.json для хранения настроек (задержки, пути, модель по умолчанию). Создай src/config.py для загрузки/сохранения настроек. Интегрируй в gui.py.\n\nТРЕБОВАНИЯ:\n1. Создай config.json и src/config.py\n2. Не ломай существующий функционал\n3. Комментарии на русском\n\nОТЧЁТ (обязательно в конце):\n## Сделано:\n- ...\n\n## Не сделано:\n- ...\n\n## Проблемы:\n- ...",
+      "model": "GPT-5.1-Codex",
+      "status": "pending",
+      "priority": "medium"
+    }
+  ]
+}
