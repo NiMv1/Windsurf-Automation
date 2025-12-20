@@ -819,8 +819,15 @@ class WindsurfAutomationGUI:
         self.load_tasks()
         self.log(f"🗑️ Задача #{task_id} удалена")
     
+    def on_closing(self):
+        """Обработчик закрытия окна - сохраняем настройки"""
+        self.save_current_config()
+        logger.info("Application closed, config saved")
+        self.root.destroy()
+    
     def run(self):
         """Запуск приложения"""
+        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
         self.root.mainloop()
 
 
