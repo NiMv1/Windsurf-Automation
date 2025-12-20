@@ -1,19 +1,36 @@
 """
-Windsurf Automation - Современный GUI
+Windsurf Automation - Современный GUI v1.0
+Полная версия с автоматическим выбором модели и очередью задач
 """
 
 import tkinter as tk
-from tkinter import ttk, messagebox, scrolledtext
+from tkinter import ttk, messagebox, scrolledtext, filedialog
 import sys
 import os
 import json
 import time
 import threading
+import logging
+from datetime import datetime
 
 # Добавляем путь к src
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
 from windsurf_automation import WindsurfAutomation, find_windsurf_windows
+
+# Настройка логирования в файл
+LOG_DIR = os.path.join(os.path.dirname(__file__), 'logs')
+os.makedirs(LOG_DIR, exist_ok=True)
+LOG_FILE = os.path.join(LOG_DIR, f"wa_{datetime.now().strftime('%Y%m%d')}.log")
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(message)s',
+    handlers=[
+        logging.FileHandler(LOG_FILE, encoding='utf-8'),
+        logging.StreamHandler()
+    ]
+)
 
 
 class ModernStyle:
@@ -76,21 +93,39 @@ class WindsurfAutomationGUI:
                         fg=ModernStyle.FG_TEXT, bg=ModernStyle.BG_DARK)
         title.pack(side=tk.LEFT)
         
-        version = tk.Label(header, text="v0.3.0", 
+        version = tk.Label(header, text="v1.0.0", 
                           font=ModernStyle.FONT_SUBTITLE,
                           fg=ModernStyle.FG_MUTED, bg=ModernStyle.BG_DARK)
         version.pack(side=tk.LEFT, padx=10)
         
-        # Предупреждение
-        warning_frame = tk.Frame(main_frame, bg=ModernStyle.BG_WARNING, padx=10, pady=8)
-        warning_frame.pack(fill=tk.X, pady=(0, 15))
+        # Статус подключения
+        self.status_label = tk.Label(header, text="⚪ Не подключено",
+                                    font=ModernStyle.FONT_TEXT,
+                                    fg=ModernStyle.FG_MUTED, bg=ModernStyle.BG_DARK)
+        self.status_label.pack(side=tk.RIGHT)
         
-        warning_text = tk.Label(warning_frame, 
-                               text="⚠️ Ручной выбор модели: После открытия окна выберите FREE модель (SWE-1, GPT-5.1-Codex, Grok)",
-                               font=ModernStyle.FONT_TEXT,
-                               fg="#000000", bg=ModernStyle.BG_WARNING,
-                               wraplength=700)
-        warning_text.pack()
+        # Панель выбора модели
+        model_frame = tk.Frame(main_frame, bg=ModernStyle.BG_CARD, padx=10, pady=8)
+        model_frame.pack(fill=tk.X, pady=(0, 15))
+        
+        tk.Label(model_frame, text="🤖 Модель:",
+                font=ModernStyle.FONT_TEXT,
+                fg=ModernStyle.FG_TEXT, bg=ModernStyle.BG_CARD).pack(side=tk.LEFT)
+        
+        self.model_var = tk.StringVar(value="SWE-1")
+        model_combo = ttk.Combobox(model_frame, textvariable=self.model_var,
+                                   values=["SWE-1", "GPT-5.1-Codex", "Grok Code Fast 1"],
+                                   font=ModernStyle.FONT_TEXT, width=20, state="readonly")
+        model_combo.pack(side=tk.LEFT, padx=10)
+        
+        self.auto_model_var = tk.BooleanVar(value=True)
+        auto_check = tk.Checkbutton(model_frame, text="Авто-выбор модели",
+                                   variable=self.auto_model_var,
+                                   font=ModernStyle.FONT_TEXT,
+                                   fg=ModernStyle.FG_TEXT, bg=ModernStyle.BG_CARD,
+                                   selectcolor=ModernStyle.BG_DARK,
+                                   activebackground=ModernStyle.BG_CARD)
+        auto_check.pack(side=tk.LEFT, padx=20)
         
         # Основной контент - две колонки
         content = tk.Frame(main_frame, bg=ModernStyle.BG_DARK)
@@ -114,6 +149,10 @@ class WindsurfAutomationGUI:
         self.btn_send = self.create_button(actions_card, "💬 Отправить сообщение", 
                                           self.send_message_dialog, ModernStyle.BG_BUTTON)
         self.btn_send.pack(fill=tk.X, pady=5)
+        
+        self.btn_full_task = self.create_button(actions_card, "⚡ Полный цикл (окно+модель+промпт)", 
+                                               self.full_task_dialog, ModernStyle.BG_SUCCESS)
+        self.btn_full_task.pack(fill=tk.X, pady=5)
         
         # Карточка "Окна Windsurf"
         windows_card = self.create_card(left_col, "🪟 Окна Windsurf")
@@ -163,6 +202,16 @@ class WindsurfAutomationGUI:
                                          self.run_selected_task, ModernStyle.BG_PRIMARY)
         btn_run_task.pack(side=tk.LEFT, expand=True, fill=tk.X, padx=(5, 0))
         
+        # Кнопка запуска очереди
+        btn_run_queue = self.create_button(tasks_card, "🔄 Запустить все задачи", 
+                                          self.run_all_tasks, ModernStyle.BG_WARNING)
+        btn_run_queue.pack(fill=tk.X, pady=5)
+        
+        # Кнопка удаления задачи
+        btn_delete_task = self.create_button(tasks_card, "🗑️ Удалить выбранную", 
+                                            self.delete_selected_task, ModernStyle.BG_DANGER)
+        btn_delete_task.pack(fill=tk.X, pady=5)
+        
         # Лог
         log_card = self.create_card(main_frame, "📝 Лог")
         log_card.pack(fill=tk.X, pady=(15, 0))
@@ -177,7 +226,10 @@ class WindsurfAutomationGUI:
                                                   highlightbackground=ModernStyle.BG_BUTTON)
         self.log_text.pack(fill=tk.X, pady=5)
         
-        self.log("Windsurf Automation запущен")
+        self.log("Windsurf Automation v1.0 запущен")
+        
+        # Подключаем callback для логирования из WA
+        self.wa.log_callback = self.log
     
     def create_card(self, parent, title):
         """Создать карточку с заголовком"""
@@ -218,8 +270,20 @@ class WindsurfAutomationGUI:
     def log(self, message):
         """Добавить сообщение в лог"""
         timestamp = time.strftime("%H:%M:%S")
-        self.log_text.insert(tk.END, f"[{timestamp}] {message}\n")
-        self.log_text.see(tk.END)
+        log_message = f"[{timestamp}] {message}"
+        
+        # Логируем в файл
+        logging.info(message)
+        
+        # Обновляем GUI (thread-safe)
+        def update():
+            self.log_text.insert(tk.END, f"{log_message}\n")
+            self.log_text.see(tk.END)
+        
+        try:
+            self.root.after(0, update)
+        except:
+            pass  # GUI может быть закрыт
     
     def refresh_windows(self):
         """Обновить список окон"""
@@ -235,9 +299,11 @@ class WindsurfAutomationGUI:
             self.windows_listbox.selection_set(0)
             self.wa.hwnd, self.wa.title = windows[0]
             self.log(f"Найдено {len(windows)} окон Windsurf")
+            self.status_label.configure(text="🟢 Подключено", fg=ModernStyle.FG_SUCCESS)
         else:
             self.windows_listbox.insert(tk.END, "Нет открытых окон")
             self.log("⚠️ Окна Windsurf не найдены")
+            self.status_label.configure(text="🔴 Не подключено", fg=ModernStyle.BG_DANGER)
     
     def on_window_select(self, event):
         """Обработка выбора окна"""
@@ -413,7 +479,7 @@ class WindsurfAutomationGUI:
         btn.pack(pady=20)
     
     def run_selected_task(self):
-        """Выполнить выбранную задачу"""
+        """Выполнить выбранную задачу с автоматическим выбором модели"""
         selection = self.tasks_listbox.curselection()
         if not selection:
             messagebox.showwarning("Внимание", "Выберите задачу")
@@ -421,7 +487,6 @@ class WindsurfAutomationGUI:
         
         # Получить ID задачи из текста
         text = self.tasks_listbox.get(selection[0])
-        # Формат: "📌 [1] Название (Модель)"
         try:
             task_id = int(text.split('[')[1].split(']')[0])
         except:
@@ -438,33 +503,11 @@ class WindsurfAutomationGUI:
         self.log(f"🚀 Выполняю задачу #{task_id}: {task['title']}")
         
         def run():
-            # Открыть окно
-            self.log("1️⃣ Открываю окно...")
-            if not self.wa.open_new_window():
-                self.log("❌ Не удалось открыть окно")
-                return
+            # Используем полный цикл run_task
+            model = task.get('model', self.model_var.get())
+            success = self.wa.run_task(task['prompt'], model, close_after=False)
             
-            time.sleep(1)
-            
-            # Открыть sidebar
-            self.log("2️⃣ Открываю sidebar...")
-            if not self.wa.open_sidebar():
-                self.log("❌ Не удалось открыть sidebar")
-                return
-            
-            time.sleep(0.5)
-            
-            # Показать напоминание о модели
-            self.root.after(0, lambda: messagebox.showinfo(
-                "Выберите модель",
-                f"Выберите модель: {task['model']}\n\nПосле выбора нажмите OK"
-            ))
-            
-            # Отправить промпт
-            self.log("3️⃣ Отправляю промпт...")
-            if self.wa.send_message(task['prompt']):
-                self.log("✅ Задача отправлена!")
-                
+            if success:
                 # Обновить статус
                 for t in data['tasks']:
                     if t['id'] == task_id:
@@ -481,11 +524,142 @@ class WindsurfAutomationGUI:
         
         threading.Thread(target=run, daemon=True).start()
     
+    def full_task_dialog(self):
+        """Диалог полного цикла задачи (окно + модель + промпт)"""
+        dialog = tk.Toplevel(self.root)
+        dialog.title("Полный цикл задачи")
+        dialog.geometry("550x300")
+        dialog.configure(bg=ModernStyle.BG_DARK)
+        dialog.transient(self.root)
+        dialog.grab_set()
+        
+        tk.Label(dialog, text="⚡ Полный цикл: открытие окна + выбор модели + отправка промпта",
+                font=ModernStyle.FONT_SUBTITLE,
+                fg=ModernStyle.FG_TEXT, bg=ModernStyle.BG_DARK).pack(pady=15)
+        
+        # Модель
+        model_frame = tk.Frame(dialog, bg=ModernStyle.BG_DARK)
+        model_frame.pack(fill=tk.X, padx=20, pady=5)
+        
+        tk.Label(model_frame, text="Модель:",
+                font=ModernStyle.FONT_TEXT,
+                fg=ModernStyle.FG_TEXT, bg=ModernStyle.BG_DARK).pack(side=tk.LEFT)
+        
+        model_var = tk.StringVar(value=self.model_var.get())
+        model_combo = ttk.Combobox(model_frame, textvariable=model_var,
+                                   values=["SWE-1", "GPT-5.1-Codex", "Grok Code Fast 1"],
+                                   font=ModernStyle.FONT_TEXT, width=20)
+        model_combo.pack(side=tk.LEFT, padx=10)
+        
+        # Промпт
+        tk.Label(dialog, text="Промпт:",
+                font=ModernStyle.FONT_TEXT,
+                fg=ModernStyle.FG_TEXT, bg=ModernStyle.BG_DARK).pack(anchor=tk.W, padx=20, pady=(10, 5))
+        
+        prompt_entry = tk.Text(dialog, height=6,
+                              font=ModernStyle.FONT_TEXT,
+                              bg=ModernStyle.BG_CARD, fg=ModernStyle.FG_TEXT,
+                              insertbackground=ModernStyle.FG_TEXT)
+        prompt_entry.pack(fill=tk.X, padx=20, pady=5)
+        
+        def execute():
+            prompt = prompt_entry.get("1.0", tk.END).strip()
+            model = model_var.get()
+            
+            if not prompt:
+                messagebox.showerror("Ошибка", "Введите промпт")
+                return
+            
+            dialog.destroy()
+            
+            def run():
+                self.wa.run_task(prompt, model, close_after=False)
+                self.root.after(0, self.refresh_windows)
+            
+            threading.Thread(target=run, daemon=True).start()
+        
+        btn = self.create_button(dialog, "🚀 Выполнить", execute, ModernStyle.BG_SUCCESS)
+        btn.pack(pady=15)
+    
+    def run_all_tasks(self):
+        """Запустить все pending задачи"""
+        with open(self.tasks_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        pending_tasks = [t for t in data.get('tasks', []) if t['status'] == 'pending']
+        
+        if not pending_tasks:
+            messagebox.showinfo("Информация", "Нет задач для выполнения")
+            return
+        
+        if not messagebox.askyesno("Подтверждение", 
+                                   f"Запустить {len(pending_tasks)} задач?\n\n" +
+                                   "Задачи будут выполняться последовательно."):
+            return
+        
+        self.log(f"🔄 Запуск очереди из {len(pending_tasks)} задач")
+        
+        def run():
+            results = self.wa.run_tasks_queue(pending_tasks, delay_between=3)
+            
+            # Обновляем статусы
+            with open(self.tasks_file, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            
+            for result in results['results']:
+                if result['success']:
+                    task_id = result['task']['id']
+                    for t in data['tasks']:
+                        if t['id'] == task_id:
+                            t['status'] = 'in_progress'
+            
+            with open(self.tasks_file, 'w', encoding='utf-8') as f:
+                json.dump(data, f, ensure_ascii=False, indent=2)
+            
+            self.root.after(0, self.load_tasks)
+            self.root.after(0, self.refresh_windows)
+            
+            self.root.after(0, lambda: messagebox.showinfo(
+                "Готово",
+                f"Выполнено: {results['completed']}\nОшибок: {results['failed']}"
+            ))
+        
+        threading.Thread(target=run, daemon=True).start()
+    
+    def delete_selected_task(self):
+        """Удалить выбранную задачу"""
+        selection = self.tasks_listbox.curselection()
+        if not selection:
+            messagebox.showwarning("Внимание", "Выберите задачу")
+            return
+        
+        text = self.tasks_listbox.get(selection[0])
+        try:
+            task_id = int(text.split('[')[1].split(']')[0])
+        except:
+            return
+        
+        if not messagebox.askyesno("Подтверждение", f"Удалить задачу #{task_id}?"):
+            return
+        
+        with open(self.tasks_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        data['tasks'] = [t for t in data['tasks'] if t['id'] != task_id]
+        
+        with open(self.tasks_file, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        
+        self.load_tasks()
+        self.log(f"🗑️ Задача #{task_id} удалена")
+    
     def run(self):
         """Запуск приложения"""
         self.root.mainloop()
 
 
 if __name__ == "__main__":
+    # Включаем поддержку ANSI цветов в Windows
+    os.system('')
     app = WindsurfAutomationGUI()
     app.run()

@@ -1,15 +1,14 @@
-# Windsurf Automation
+# Windsurf Automation v1.0
 
 Automation tool for Windsurf IDE to help with iterative coding tasks using free AI models.
 
-## ⚠️ Current Mode
+## ✅ Features
 
-**Manual model selection required!**
-1. WA opens a new Windsurf window
-2. You manually select a FREE model (SWE-1, GPT-5.1-Codex, Grok Code Fast 1)
-3. WA sends the prompt and closes the window after completion
-
-Automatic model selection is planned for future releases.
+- **Automatic window management** - Open new Windsurf windows
+- **Model selection** - Auto-select free models (SWE-1, GPT-5.1-Codex, Grok)
+- **Task queue** - Run multiple tasks sequentially
+- **Modern GUI** - Dark theme with intuitive controls
+- **Logging** - All actions logged to `logs/` folder
 
 ## 🎯 Purpose
 
@@ -19,32 +18,36 @@ This tool helps offload routine tasks from your main AI by automating interactio
 - **Grok Code Fast 1**
 - Other models when free access promotions are available
 
-## 🚀 Features
+## 🚀 Capabilities
 
-### ✅ Feature 1: Window & Chat Automation (Working)
+### ✅ Window & Chat Automation
 - Open new Windsurf window (`Ctrl+Shift+N`)
 - Open Cascade sidebar (`Ctrl+L`)
 - Send prompts to chat
 
-### 🔄 Feature 2: Task Management (In Progress)
+### ✅ Task Management
 - Task list in `tasks/tasks.json`
 - Add, view, and execute tasks
+- Run all tasks in queue
 - Track task status
 
-### 📋 Feature 3: Model Selection (Planned)
-- Automatic model selection
-- Model availability checking
+### ✅ Model Selection
+- Automatic model selection via `Ctrl+/`
+- Support for free models
 
 ## 📁 Project Structure
 
 ```
 Windsurf-Automation/
-├── run.py              # Main UI launcher
+├── gui.py              # Modern GUI (recommended)
+├── run.py              # Console UI
+├── run.bat             # Quick launcher
 ├── requirements.txt    # Dependencies
 ├── src/
 │   └── windsurf_automation.py  # Core automation
 ├── tasks/
 │   └── tasks.json      # Task list
+├── logs/               # Log files
 └── tests/
     └── test_automation.py  # Tests
 ```
@@ -85,9 +88,10 @@ python run.py
 ## 📋 Roadmap
 
 - [x] **F1**: Basic window and chat automation
-- [ ] **F2**: Model selection automation
-- [ ] **F3**: Iteration management system
+- [x] **F2**: Model selection automation
+- [x] **F3**: Task queue system
 - [ ] **F4**: Project improvement suggestions
+- [ ] **F5**: Auto-detect task completion
 
 ## 📄 License
 

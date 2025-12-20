@@ -128,9 +128,20 @@ def get_window_rect(hwnd: int) -> Tuple[int, int, int, int]:
 class WindsurfAutomation:
     """Main class for Windsurf IDE automation"""
     
+    # Доступные бесплатные модели
+    FREE_MODELS = ["SWE-1", "GPT-5.1-Codex", "Grok Code Fast 1"]
+    
     def __init__(self):
         self.hwnd: Optional[int] = None
         self.title: str = ""
+        self.current_model: str = "SWE-1"
+        self.log_callback = None  # Callback для логирования в GUI
+    
+    def log(self, message: str):
+        """Логирование с callback для GUI"""
+        print(message)
+        if self.log_callback:
+            self.log_callback(message)
     
     def list_windows(self) -> List[Tuple[int, str]]:
         """List all Windsurf windows"""
@@ -251,6 +262,153 @@ class WindsurfAutomation:
         time.sleep(0.3)
         
         return True
+    
+    def select_model(self, model_name: str) -> bool:
+        """Выбор модели через Command Palette
+        
+        Windsurf использует Ctrl+/ для открытия меню моделей
+        """
+        if not self.activate_window():
+            return False
+        
+        self.log(f"   Выбираю модель: {model_name}")
+        
+        # Открываем sidebar сначала
+        keyboard.send('ctrl+l')
+        time.sleep(0.5)
+        
+        # Открываем меню выбора модели (Ctrl+/)
+        keyboard.send('ctrl+/')
+        time.sleep(0.5)
+        
+        # Вводим название модели для поиска
+        pyperclip.copy(model_name)
+        pyautogui.hotkey('ctrl', 'v')
+        time.sleep(0.3)
+        
+        # Выбираем первый результат
+        pyautogui.press('down')
+        time.sleep(0.1)
+        pyautogui.press('enter')
+        time.sleep(0.3)
+        
+        self.current_model = model_name
+        self.log(f"✅ Модель {model_name} выбрана")
+        return True
+    
+    def close_window(self) -> bool:
+        """Закрыть текущее окно Windsurf"""
+        if not self.activate_window():
+            return False
+        
+        keyboard.send('ctrl+shift+w')
+        time.sleep(0.5)
+        return True
+    
+    def run_task(self, prompt: str, model: str = None, close_after: bool = False) -> bool:
+        """Выполнить полную задачу: открыть окно, выбрать модель, отправить промпт
+        
+        Args:
+            prompt: Текст промпта для ИИ
+            model: Название модели (по умолчанию SWE-1)
+            close_after: Закрыть окно после отправки
+        """
+        model = model or self.current_model
+        
+        self.log("🚀 Запуск задачи...")
+        
+        # 1. Открыть новое окно
+        self.log("1️⃣ Открываю новое окно...")
+        if not self.open_new_window():
+            self.log("❌ Не удалось открыть окно")
+            return False
+        
+        time.sleep(1)
+        
+        # 2. Открыть sidebar
+        self.log("2️⃣ Открываю Cascade sidebar...")
+        if not self.open_sidebar():
+            self.log("❌ Не удалось открыть sidebar")
+            return False
+        
+        time.sleep(0.5)
+        
+        # 3. Выбрать модель
+        self.log(f"3️⃣ Выбираю модель {model}...")
+        if not self.select_model(model):
+            self.log("⚠️ Не удалось выбрать модель автоматически")
+            # Продолжаем - пользователь выберет вручную
+        
+        time.sleep(0.5)
+        
+        # 4. Отправить промпт
+        self.log("4️⃣ Отправляю промпт...")
+        
+        # Убедимся что sidebar открыт
+        keyboard.send('ctrl+l')
+        time.sleep(0.3)
+        
+        # Вставляем и отправляем
+        pyperclip.copy(prompt)
+        pyautogui.hotkey('ctrl', 'v')
+        time.sleep(0.2)
+        pyautogui.press('enter')
+        
+        self.log("✅ Задача отправлена!")
+        
+        # 5. Закрыть окно если нужно
+        if close_after:
+            time.sleep(2)
+            self.close_window()
+            self.log("🔒 Окно закрыто")
+        
+        return True
+    
+    def run_tasks_queue(self, tasks: list, delay_between: int = 5) -> dict:
+        """Выполнить очередь задач
+        
+        Args:
+            tasks: Список задач [{"prompt": str, "model": str}, ...]
+            delay_between: Задержка между задачами в секундах
+            
+        Returns:
+            dict с результатами: {"completed": int, "failed": int, "results": list}
+        """
+        results = {"completed": 0, "failed": 0, "results": []}
+        
+        self.log(f"📋 Запуск очереди из {len(tasks)} задач")
+        
+        for i, task in enumerate(tasks):
+            self.log(f"\n{'='*40}")
+            self.log(f"📌 Задача {i+1}/{len(tasks)}: {task.get('title', 'Без названия')}")
+            
+            prompt = task.get('prompt', '')
+            model = task.get('model', self.current_model)
+            
+            if not prompt:
+                self.log("⚠️ Пустой промпт, пропускаю")
+                results["failed"] += 1
+                results["results"].append({"task": task, "success": False, "error": "Empty prompt"})
+                continue
+            
+            success = self.run_task(prompt, model, close_after=False)
+            
+            if success:
+                results["completed"] += 1
+                results["results"].append({"task": task, "success": True})
+            else:
+                results["failed"] += 1
+                results["results"].append({"task": task, "success": False, "error": "Execution failed"})
+            
+            # Задержка между задачами
+            if i < len(tasks) - 1:
+                self.log(f"⏳ Ожидание {delay_between} сек...")
+                time.sleep(delay_between)
+        
+        self.log(f"\n{'='*40}")
+        self.log(f"📊 Итого: {results['completed']} выполнено, {results['failed']} ошибок")
+        
+        return results
 
 
 def main():
