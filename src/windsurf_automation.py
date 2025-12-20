@@ -325,18 +325,16 @@ class WindsurfAutomation:
         self.log("3️⃣ Отправляю промпт...")
         self.log(f"   Текст: {prompt[:100]}...")
         
-        # Кликаем в область ввода чата (правая часть окна, внизу)
+        # Кликаем в поле ввода "Ask anything" внизу sidebar
         rect = get_window_rect(self.hwnd)
-        window_width = rect[2] - rect[0]
-        window_height = rect[3] - rect[1]
         
-        # Sidebar справа занимает ~400px, поле ввода внизу sidebar
-        chat_x = rect[2] - 200  # 200px от правого края
-        chat_y = rect[3] - 80   # 80px от низа
+        # Поле ввода: справа в sidebar, самый низ (где "Ask anything")
+        chat_x = rect[2] - 250  # 250px от правого края (центр sidebar)
+        chat_y = rect[3] - 50   # 50px от низа окна
         
-        self.log(f"   Окно: {rect}, клик: ({chat_x}, {chat_y})")
+        self.log(f"   Клик в поле ввода: ({chat_x}, {chat_y})")
         pyautogui.click(chat_x, chat_y)
-        time.sleep(0.3)
+        time.sleep(0.5)
         
         # Вставляем текст через clipboard
         pyperclip.copy(prompt)
