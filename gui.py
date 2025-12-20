@@ -72,7 +72,7 @@ class WindsurfAutomationGUI:
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("Windsurf Automation v1.2.2")
-        self.root.geometry("900x750")  # Увеличенный размер окна
+        self.root.geometry("900x1000")  # Увеличенный размер окна
         self.root.minsize(800, 650)  # Минимальный размер
         self.root.configure(bg=ModernStyle.BG_DARK)
         self.root.resizable(True, True)
@@ -519,11 +519,14 @@ class WindsurfAutomationGUI:
             return
         
         self.log(f"🚀 Выполняю задачу #{task_id}: {task['title']}")
+        self.update_progress(25)
         
         def run():
+            self.update_progress(50)
             # Используем полный цикл run_task
             model = task.get('model', self.model_var.get())
             success = self.wa.run_task(task['prompt'], model, close_after=False)
+            self.update_progress(75)
             
             if success:
                 # Обновить статус
@@ -539,10 +542,13 @@ class WindsurfAutomationGUI:
                 self.root.after(0, lambda: self.add_to_history(task['title']))
                 # Звук при успехе
                 self.play_sound()
+                self.update_progress(100)
             else:
                 self.log("❌ Не удалось отправить промпт")
             
             self.root.after(0, self.refresh_windows)
+            # Сброс прогресс-бара через 1 сек
+            self.root.after(1000, lambda: self.update_progress(0))
         
         threading.Thread(target=run, daemon=True).start()
     
