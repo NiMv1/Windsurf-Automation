@@ -1,4 +1,4 @@
 @echo off
 title Windsurf Automation
-python run.py
+python gui.py
 pause

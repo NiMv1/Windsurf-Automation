@@ -7,13 +7,26 @@
       "title": "Пример задачи",
       "prompt": "Напиши Hello World на Python",
       "model": "SWE-1",
-      "status": "pending",
+      "status": "in_progress",
       "priority": "low",
       "created": "2024-12-20"
+    },
+    {
+      "id": 2,
+      "title": "Тестовое сообщение",
+      "prompt": "Тест",
+      "model": "SWE-1",
+      "status": "pending",
+      "priority": "1",
+      "created": "2025-12-20"
     }
   ],
   "models": {
-    "free": ["SWE-1", "GPT-5.1-Codex", "Grok Code Fast 1"],
+    "free": [
+      "SWE-1",
+      "GPT-5.1-Codex",
+      "Grok Code Fast 1"
+    ],
     "default": "SWE-1"
   }
 }

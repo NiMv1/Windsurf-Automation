@@ -46,6 +46,13 @@ def get_all_windows() -> List[Tuple[int, str]]:
     return windows
 
 
+def get_window_class(hwnd: int) -> str:
+    """Get window class name"""
+    buff = ctypes.create_unicode_buffer(256)
+    user32.GetClassNameW(hwnd, buff, 256)
+    return buff.value
+
+
 def find_windsurf_windows(ide_only: bool = False) -> List[Tuple[int, str]]:
     """Find all Windsurf windows
     
@@ -56,18 +63,20 @@ def find_windsurf_windows(ide_only: bool = False) -> List[Tuple[int, str]]:
     windows = [(hwnd, title) for hwnd, title in all_windows if "Windsurf" in title]
     
     if ide_only:
-        # Filter: must have " - Windsurf" pattern OR be "Windsurf" exactly (new empty window)
-        # Exclude: browser, explorer
         filtered = []
         for hwnd, title in windows:
             # Skip browser windows
             if "Браузер" in title or "Browser" in title:
                 continue
-            # Skip explorer windows
+            # Skip explorer windows  
             if "проводник" in title.lower():
                 continue
-            # Include IDE windows
-            if " - Windsurf" in title or title == "Windsurf" or title.startswith("Windsurf"):
+            # Check window class - Electron apps use "Chrome_WidgetWin_1"
+            wclass = get_window_class(hwnd)
+            if wclass == "Chrome_WidgetWin_1":
+                filtered.append((hwnd, title))
+            # Also include by title pattern
+            elif " - Windsurf" in title or title == "Windsurf":
                 filtered.append((hwnd, title))
         return filtered
     

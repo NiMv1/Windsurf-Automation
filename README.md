@@ -65,16 +65,22 @@ pip install -r requirements.txt
 
 ## 🔧 Usage
 
+### GUI (Recommended)
+```bash
+python gui.py
+```
+Or double-click `run.bat`
+
+### Console Mode
 ```bash
 python run.py
 ```
 
-Then use the menu:
-1. **Quick Run** - Open new window + sidebar
-2. **Show Tasks** - View task list
-3. **Add Task** - Create new task
-4. **Run Task** - Execute a task
-5. **Show Windows** - List Windsurf windows
+### Features:
+- **Quick Run** - Open new window + sidebar
+- **Task Management** - Add, view, execute tasks
+- **Window Selection** - Choose which Windsurf window to control
+- **Message Sending** - Send prompts to Cascade chat
 
 ## 📋 Roadmap
 
