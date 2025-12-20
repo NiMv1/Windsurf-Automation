@@ -299,16 +299,21 @@ class WindsurfAutomation:
             self.log("❌ Не удалось открыть окно")
             return False
         
-        time.sleep(1.5)
+        time.sleep(2)
         
-        # 2. Активируем окно и кликаем для фокуса
+        # 2. Активируем окно
         if not self.activate_window():
             self.log("❌ Не удалось активировать окно")
             return False
         
         time.sleep(0.5)
         
-        # 3. Открыть sidebar
+        # 3. Закрыть Welcome вкладку через Ctrl+W
+        self.log("   Закрываю Welcome вкладку...")
+        keyboard.send('ctrl+w')
+        time.sleep(0.5)
+        
+        # 4. Открыть sidebar
         self.log("2️⃣ Открываю Cascade sidebar...")
         keyboard.send('ctrl+l')
         time.sleep(1.5)
@@ -320,10 +325,16 @@ class WindsurfAutomation:
         self.log("3️⃣ Отправляю промпт...")
         self.log(f"   Текст: {prompt[:100]}...")
         
-        # Кликаем в область ввода чата (центр окна, нижняя часть)
+        # Кликаем в область ввода чата (правая часть окна, внизу)
         rect = get_window_rect(self.hwnd)
-        chat_x = (rect[0] + rect[2]) // 2 + 200  # Правее центра (там sidebar)
-        chat_y = rect[3] - 100  # Внизу окна
+        window_width = rect[2] - rect[0]
+        window_height = rect[3] - rect[1]
+        
+        # Sidebar справа занимает ~400px, поле ввода внизу sidebar
+        chat_x = rect[2] - 200  # 200px от правого края
+        chat_y = rect[3] - 80   # 80px от низа
+        
+        self.log(f"   Окно: {rect}, клик: ({chat_x}, {chat_y})")
         pyautogui.click(chat_x, chat_y)
         time.sleep(0.3)
         
