@@ -1,4 +1,4 @@
-# Windsurf Automation v1.2.2
+# Windsurf Automation v1.2.3
 
 Автоматизация Windsurf IDE для итеративных задач с бесплатными ИИ моделями.
 
