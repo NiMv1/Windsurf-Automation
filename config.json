@@ -1,0 +1,8 @@
+{
+  "model": "GPT-5.1-Codex",
+  "delay": 2,
+  "sound_enabled": true,
+  "auto_commit": false,
+  "log_level": "DEBUG",
+  "project_path": "C:\\Users\\bnex4\\CascadeProjects\\Windsurf-Automation"
+}
