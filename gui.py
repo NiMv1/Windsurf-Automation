@@ -11,6 +11,8 @@ import json
 import time
 import threading
 import logging
+import subprocess
+import winsound
 from datetime import datetime
 
 # Добавляем путь к src
@@ -23,14 +25,22 @@ LOG_DIR = os.path.join(os.path.dirname(__file__), 'logs')
 os.makedirs(LOG_DIR, exist_ok=True)
 LOG_FILE = os.path.join(LOG_DIR, f"wa_{datetime.now().strftime('%Y%m%d')}.log")
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s [%(levelname)s] %(message)s',
-    handlers=[
-        logging.FileHandler(LOG_FILE, encoding='utf-8'),
-        logging.StreamHandler()
-    ]
-)
+# Настройка логирования с уровнями DEBUG/INFO (как в JabRef PR #14649)
+logger = logging.getLogger('WA')
+logger.setLevel(logging.DEBUG)  # DEBUG для детальной информации
+
+# Файловый handler - DEBUG уровень (всё логируется)
+file_handler = logging.FileHandler(LOG_FILE, encoding='utf-8')
+file_handler.setLevel(logging.DEBUG)
+file_handler.setFormatter(logging.Formatter('%(asctime)s [%(levelname)s] %(message)s'))
+
+# Консольный handler - INFO уровень (меньше шума)
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.INFO)
+console_handler.setFormatter(logging.Formatter('[%(levelname)s] %(message)s'))
+
+logger.addHandler(file_handler)
+logger.addHandler(console_handler)
 
 
 class ModernStyle:
@@ -162,6 +172,27 @@ class WindsurfAutomationGUI:
                                                self.full_task_dialog, ModernStyle.BG_SUCCESS)
         self.btn_full_task.pack(fill=tk.X, pady=5)
         
+        # Кнопка запуска теста (как в JabRef)
+        self.btn_test = self.create_button(run_card, "🧪 Запустить тест", 
+                                          self.run_test, ModernStyle.BG_WARNING)
+        self.btn_test.pack(fill=tk.X, pady=5)
+        
+        # Прогресс-бар
+        self.progress_var = tk.DoubleVar(value=0)
+        self.progress_bar = ttk.Progressbar(run_card, variable=self.progress_var, 
+                                            maximum=100, mode='determinate')
+        self.progress_bar.pack(fill=tk.X, pady=5)
+        
+        # Чекбокс звука
+        self.sound_var = tk.BooleanVar(value=True)
+        sound_check = tk.Checkbutton(run_card, text="🔊 Звук при завершении",
+                                    variable=self.sound_var,
+                                    font=ModernStyle.FONT_TEXT,
+                                    fg=ModernStyle.FG_TEXT, bg=ModernStyle.BG_CARD,
+                                    selectcolor=ModernStyle.BG_DARK,
+                                    activebackground=ModernStyle.BG_CARD)
+        sound_check.pack(anchor=tk.W, pady=5)
+        
         # Правая колонка - Задачи
         right_col = tk.Frame(content, bg=ModernStyle.BG_DARK, width=350)
         right_col.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=(10, 0))
@@ -261,8 +292,8 @@ class WindsurfAutomationGUI:
         timestamp = time.strftime("%H:%M:%S")
         log_message = f"[{timestamp}] {message}"
         
-        # Логируем в файл
-        logging.info(message)
+        # Логируем в файл через logger (INFO уровень для GUI сообщений)
+        logger.info(message)
         
         # Обновляем GUI (thread-safe)
         def update():
@@ -558,6 +589,75 @@ class WindsurfAutomationGUI:
             ))
         
         threading.Thread(target=run, daemon=True).start()
+    
+    def run_test(self):
+        """Запустить автоматический тест (tests/auto_test.py)"""
+        self.log("🧪 Запускаю тест...")
+        logger.debug("Starting auto_test.py")  # DEBUG уровень для детальной информации
+        
+        def run():
+            try:
+                self.update_progress(25)
+                test_path = os.path.join(os.path.dirname(__file__), 'tests', 'auto_test.py')
+                
+                if not os.path.exists(test_path):
+                    self.log("❌ Файл теста не найден: tests/auto_test.py")
+                    logger.error(f"Test file not found: {test_path}")
+                    return
+                
+                self.update_progress(50)
+                logger.debug(f"Running test: {test_path}")
+                
+                # Запускаем тест в отдельном процессе
+                process = subprocess.Popen(
+                    ['python', test_path],
+                    cwd=os.path.dirname(__file__),
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True
+                )
+                
+                self.update_progress(75)
+                stdout, stderr = process.communicate(timeout=60)
+                
+                if process.returncode == 0:
+                    self.log("✅ Тест завершён успешно")
+                    logger.info("Test completed successfully")
+                    self.play_sound()
+                else:
+                    self.log(f"❌ Тест завершён с ошибкой (код {process.returncode})")
+                    logger.error(f"Test failed with code {process.returncode}")
+                    if stderr:
+                        logger.debug(f"Test stderr: {stderr[:500]}")
+                
+                self.update_progress(100)
+                
+            except subprocess.TimeoutExpired:
+                self.log("⏱️ Тест превысил время ожидания (60 сек)")
+                logger.warning("Test timeout after 60 seconds")
+            except Exception as e:
+                self.log(f"❌ Ошибка запуска теста: {e}")
+                logger.exception("Test execution error")
+            finally:
+                self.root.after(1000, lambda: self.update_progress(0))
+        
+        threading.Thread(target=run, daemon=True).start()
+    
+    def update_progress(self, value):
+        """Обновить прогресс-бар (thread-safe)"""
+        def update():
+            self.progress_var.set(value)
+        self.root.after(0, update)
+    
+    def play_sound(self):
+        """Воспроизвести звук завершения"""
+        if self.sound_var.get():
+            try:
+                winsound.Beep(1000, 300)  # 1000 Hz, 300 ms
+                winsound.Beep(1500, 200)  # 1500 Hz, 200 ms
+                logger.debug("Sound notification played")
+            except Exception as e:
+                logger.debug(f"Sound error: {e}")
     
     def delete_selected_task(self):
         """Удалить выбранную задачу"""
