@@ -73,6 +73,7 @@ class WindsurfAutomationGUI:
         self.root = tk.Tk()
         self.root.title("Windsurf Automation v1.2.2")
         self.root.geometry("900x750")  # Увеличенный размер окна
+        self.root.minsize(800, 650)  # Минимальный размер
         self.root.configure(bg=ModernStyle.BG_DARK)
         self.root.resizable(True, True)
         
