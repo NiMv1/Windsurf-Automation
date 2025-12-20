@@ -252,6 +252,17 @@ class WindsurfAutomationGUI:
                                               self.clear_history, ModernStyle.BG_BUTTON)
         btn_clear_history.pack(fill=tk.X, pady=5)
         
+        # Карточка "Boss/Worker"
+        boss_card = self.create_card(left_col, "👔 Boss/Worker")
+        
+        btn_boss = self.create_button(boss_card, "👔 Запустить Boss", 
+                                     self.run_boss, ModernStyle.BG_PRIMARY)
+        btn_boss.pack(fill=tk.X, pady=5)
+        
+        btn_boss_check = self.create_button(boss_card, "🔍 Проверить результаты", 
+                                           self.check_boss_results, ModernStyle.BG_BUTTON)
+        btn_boss_check.pack(fill=tk.X, pady=5)
+        
         # Лог
         log_card = self.create_card(main_frame, "📝 Лог")
         log_card.pack(fill=tk.X, pady=(15, 0))
@@ -718,6 +729,61 @@ class WindsurfAutomationGUI:
         """Очистить историю"""
         self.history_listbox.delete(0, tk.END)
         self.log("📜 История очищена")
+    
+    def run_boss(self):
+        """Запустить Boss для управления рабочими GPT"""
+        self.log("👔 Запускаю Boss...")
+        
+        def run():
+            try:
+                boss_path = os.path.join(os.path.dirname(__file__), 'boss.py')
+                process = subprocess.Popen(
+                    ['python', boss_path],
+                    cwd=os.path.dirname(__file__),
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True
+                )
+                stdout, stderr = process.communicate(timeout=120)
+                
+                if stdout:
+                    for line in stdout.strip().split('\n')[-5:]:  # Последние 5 строк
+                        self.log(f"   {line}")
+                
+                if process.returncode == 0:
+                    self.log("✅ Boss завершил работу")
+                    self.play_sound()
+                else:
+                    self.log(f"⚠️ Boss завершился с кодом {process.returncode}")
+                    
+            except subprocess.TimeoutExpired:
+                self.log("⏱️ Boss превысил время ожидания")
+            except Exception as e:
+                self.log(f"❌ Ошибка Boss: {e}")
+        
+        threading.Thread(target=run, daemon=True).start()
+    
+    def check_boss_results(self):
+        """Проверить результаты работы Boss через git diff"""
+        self.log("🔍 Проверяю изменения в git...")
+        
+        try:
+            result = subprocess.run(
+                ['git', 'diff', '--stat'],
+                cwd=os.path.dirname(__file__),
+                capture_output=True,
+                text=True
+            )
+            
+            if result.stdout.strip():
+                self.log("📝 Изменения:")
+                for line in result.stdout.strip().split('\n'):
+                    self.log(f"   {line}")
+            else:
+                self.log("   Нет изменений в файлах")
+                
+        except Exception as e:
+            self.log(f"❌ Ошибка проверки: {e}")
     
     def delete_selected_task(self):
         """Удалить выбранную задачу"""
