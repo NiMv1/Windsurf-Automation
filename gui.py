@@ -235,6 +235,23 @@ class WindsurfAutomationGUI:
                                             self.delete_selected_task, ModernStyle.BG_DANGER)
         btn_delete_task.pack(fill=tk.X, pady=5)
         
+        # Карточка "История"
+        history_card = self.create_card(right_col, "📜 История выполненных")
+        
+        self.history_listbox = tk.Listbox(history_card,
+                                          font=ModernStyle.FONT_TEXT,
+                                          bg=ModernStyle.BG_DARK,
+                                          fg=ModernStyle.FG_MUTED,
+                                          height=4,
+                                          borderwidth=0,
+                                          highlightthickness=1,
+                                          highlightbackground=ModernStyle.BG_BUTTON)
+        self.history_listbox.pack(fill=tk.X, pady=5)
+        
+        btn_clear_history = self.create_button(history_card, "🗑️ Очистить историю", 
+                                              self.clear_history, ModernStyle.BG_BUTTON)
+        btn_clear_history.pack(fill=tk.X, pady=5)
+        
         # Лог
         log_card = self.create_card(main_frame, "📝 Лог")
         log_card.pack(fill=tk.X, pady=(15, 0))
@@ -506,6 +523,10 @@ class WindsurfAutomationGUI:
                     json.dump(data, f, ensure_ascii=False, indent=2)
                 
                 self.root.after(0, self.load_tasks)
+                # Добавляем в историю
+                self.root.after(0, lambda: self.add_to_history(task['title']))
+                # Звук при успехе
+                self.play_sound()
             else:
                 self.log("❌ Не удалось отправить промпт")
             
@@ -683,6 +704,20 @@ class WindsurfAutomationGUI:
                 logger.debug("Sound notification played")
             except Exception as e:
                 logger.debug(f"Sound error: {e}")
+    
+    def add_to_history(self, task_title):
+        """Добавить задачу в историю"""
+        timestamp = time.strftime("%H:%M")
+        self.history_listbox.insert(0, f"[{timestamp}] {task_title}")
+        # Ограничиваем историю 20 записями
+        while self.history_listbox.size() > 20:
+            self.history_listbox.delete(tk.END)
+        logger.debug(f"Added to history: {task_title}")
+    
+    def clear_history(self):
+        """Очистить историю"""
+        self.history_listbox.delete(0, tk.END)
+        self.log("📜 История очищена")
     
     def delete_selected_task(self):
         """Удалить выбранную задачу"""
