@@ -132,33 +132,28 @@ def open_new_windsurf_window():
 
 
 def send_task_to_window(hwnd, prompt, model="GPT-5.1-Codex"):
-    """Отправить задачу в указанное окно Windsurf"""
+    """Отправить задачу в указанное окно Windsurf (только hotkeys, без кликов)"""
     print(f"\n2️⃣ Отправляю задачу в окно {hwnd}...")
     
     # Активируем окно
     activate_window_by_hwnd(hwnd)
     time.sleep(1)
     
-    # Открываем Cascade sidebar через Ctrl+L
-    print("   Открываю Cascade sidebar...")
+    # Ctrl+L открывает Cascade и ставит фокус в поле ввода
+    print("   Ctrl+L (открыть Cascade + фокус)...")
     keyboard.send('ctrl+l')
     time.sleep(2)
     
-    # Просто используем Ctrl+L ещё раз - это ставит фокус в поле ввода
-    print("   Фокус на поле ввода...")
-    keyboard.send('ctrl+l')
-    time.sleep(0.5)
-    
-    # Вставляем промпт
-    print("   Вставляю промпт...")
+    # Вставляем промпт через clipboard
+    print("   Вставляю промпт (Ctrl+V)...")
     pyperclip.copy(prompt)
-    pyautogui.hotkey('ctrl', 'v')
+    keyboard.send('ctrl+v')
     time.sleep(0.5)
     
-    # Отправляем
-    print("   Отправляю...")
-    pyautogui.press('enter')
-    time.sleep(0.5)
+    # Отправляем Enter
+    print("   Отправляю (Enter)...")
+    keyboard.send('enter')
+    time.sleep(1)
     
     print(f"✅ Задача отправлена!")
     print(f"⚠️ ВРУЧНУЮ выбери модель: {model}")
@@ -214,41 +209,30 @@ def open_worker_window():
         if hwnd not in old_hwnds:
             print(f"✅ Новое окно: [{hwnd}] {title[:40]}...")
             
-            # Закрываем Welcome и открываем проект через Recent Projects
-            print("   Открываю проект WA...")
+            # Открываем проект WA через Ctrl+O (Open Folder)
+            print("   Открываю проект WA (Ctrl+O)...")
             activate_window_by_hwnd(hwnd)
             time.sleep(1)
             
-            # Нажимаем Escape чтобы закрыть Welcome
-            pyautogui.press('escape')
-            time.sleep(0.5)
+            # Ctrl+O = Open Folder в Windsurf
+            keyboard.send('ctrl+o')
+            time.sleep(1.5)
             
-            # Используем Ctrl+R для открытия Recent (или File -> Open Recent)
-            # Или просто откроем через командную палитру
-            keyboard.send('ctrl+shift+p')  # Command Palette
-            time.sleep(0.5)
-            
-            # Вводим "Open Folder"
-            pyautogui.typewrite('Open Folder', interval=0.03)
+            # В диалоге: Alt+D = адресная строка, вставляем путь
+            keyboard.send('alt+d')
             time.sleep(0.3)
-            pyautogui.press('enter')
-            time.sleep(1)
-            
-            # В диалоге вставляем путь через clipboard
             pyperclip.copy(WA_PROJECT)
-            keyboard.send('ctrl+l')  # Фокус на адресную строку в диалоге
-            time.sleep(0.2)
-            pyautogui.hotkey('ctrl', 'v')
+            keyboard.send('ctrl+v')
             time.sleep(0.3)
-            pyautogui.press('enter')
+            keyboard.send('enter')
             time.sleep(1)
             
-            # Нажимаем Select Folder
-            pyautogui.press('enter')
+            # Enter для Select Folder
+            keyboard.send('enter')
             time.sleep(2)
             
-            # Если появился диалог "Trust authors" - нажимаем Yes
-            pyautogui.press('enter')  # Trust authors
+            # Enter для Trust authors
+            keyboard.send('enter')
             time.sleep(2)
             
             # Возвращаем фокус пользователю
