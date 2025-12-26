@@ -1,96 +1,36 @@
-# Windsurf Automation v2.0.0
+# Windsurf Automation v3.0
 
-🧠 **Самоулучшающаяся система** для автоматизации Windsurf IDE с бесплатными ИИ моделями.
+🌊 **Простая автоматизация** Windsurf IDE через горячие клавиши.
 
-## 🎯 Основные возможности
+## 🎯 Возможности
 
-### ✅ Автоматизация Windsurf
-- **Умный поиск окна** - Находит Windsurf, игнорируя браузеры и проводник
-- **Отправка промптов** - Автоматическая вставка в Cascade чат
-- **Очередь задач** - Выполнение задач последовательно
-- **GUI настройки** - Захват координат и горячих клавиш
+- **Поиск окон Windsurf** - Автоматически находит открытые окна
+- **Новая сессия** - Открывает новое окно + Cascade + выбор модели
+- **Отправка промптов** - Из файлов в папке промптов
+- **Простой GUI** - Минимальный и понятный интерфейс
 
-### 🧠 AI Brain (Новое!)
-- **Самоанализ** - Программа анализирует свой код и находит улучшения
-- **Планирование** - Автоматическое создание задач
-- **Память** - Краткосрочная и долгосрочная память
-- **Обучение** - Учится на результатах выполнения
+## 🔄 Как работает
 
-### 🐙 GitHub автоматизация
-- **Поиск issues** - Находит "good first issue" для PR
-- **Создание PR** - Автоматическое создание pull requests
-- **Ответы на ревью** - Обработка комментариев ревьюеров
+1. **Активация окна** - Выбираем окно Windsurf из списка
+2. **Ctrl+Shift+N** - Открываем новое окно
+3. **Ctrl+L** - Открываем Cascade (ждём 20 сек прогрева)
+4. **Ctrl+/** - Выбираем модель (вводим название, ↓, Enter)
+5. **Отправка сообщений** - Ctrl+L → вставка → Enter
 
-### 🎮 Разработка проектов
-- **Игры** - Поддержка разработки игр
-- **Сайты** - Веб-разработка
-- **Приложения** - Любые проекты
-
-## ⚠️ Ограничения
-
-- Автоматическое открытие окон нестабильно на мульти-мониторе
-- Рекомендуется открывать рабочие окна вручную
-
-## 🎯 Purpose
-
-This tool helps offload routine tasks from your main AI by automating interactions with Windsurf IDE using free AI models:
-- **SWE-1**
-- **GPT-5.1-Codex**
-- **Grok Code Fast 1**
-- Other models when free access promotions are available
-
-## 🚀 Capabilities
-
-### ✅ Window & Chat Automation
-- Open new Windsurf window (`Ctrl+Shift+N`)
-- Open Cascade sidebar (`Ctrl+L`)
-- Send prompts to chat
-
-### ✅ Task Management
-- Task list in `tasks/tasks.json`
-- Add, view, and execute tasks
-- Run all tasks in queue
-- Track task status
-
-### ✅ Model Selection
-- Automatic model selection via `Ctrl+/`
-- Support for free models
-
-## 📁 Project Structure
+## 📁 Структура
 
 ```
 Windsurf-Automation/
-├── gui.py                    # Modern GUI (recommended)
-├── boss.py                   # Boss/Worker system
-├── self_improve.py           # Self-improvement runner
-├── config.json               # Settings
-├── windsurf_config.json      # Windsurf coordinates & hotkeys
-├── memory.db                 # AI Brain memory (SQLite)
-├── CHANGELOG.md              # Version history
-├── run.bat                   # Quick launcher
-├── requirements.txt          # Dependencies
-├── src/
-│   ├── ai_brain.py           # 🧠 AI Brain - мозг системы
-│   ├── window_finder.py      # 🔍 Умный поиск окна Windsurf
-│   ├── windsurf_config_gui.py # ⚙️ GUI настройки координат
-│   ├── windsurf_automation.py # Core automation
-│   └── config.py             # Config loader
-├── docs/
-│   └── SELF_IMPROVEMENT_ARCHITECTURE.md  # Архитектура системы
-├── tasks/
-│   └── tasks.json            # Task list
-├── logs/                     # Log files
-└── tests/
-    └── auto_test.py          # Automated tests
+├── main.py           # Главный файл с GUI
+├── config.json       # Настройки
+├── requirements.txt  # Зависимости
+├── run.bat          # Быстрый запуск
+├── prompts/         # Папка с промптами (.txt, .md)
+├── logs/            # Логи
+└── tasks/           # Задачи
 ```
 
-## 🛠️ Requirements
-
-- Python 3.10+
-- Windows 10/11
-- Windsurf IDE installed
-
-## 📦 Installation
+## 🛠️ Установка
 
 ```bash
 git clone https://github.com/NiMv1/Windsurf-Automation.git
@@ -98,32 +38,31 @@ cd Windsurf-Automation
 pip install -r requirements.txt
 ```
 
-## 🔧 Usage
+## 🚀 Запуск
 
-### GUI (Recommended)
 ```bash
-python gui.py
-```
-Or double-click `run.bat`
-
-### Console Mode
-```bash
-python run.py
+python main.py
 ```
 
-### Features:
-- **Quick Run** - Open new window + sidebar
-- **Task Management** - Add, view, execute tasks
-- **Window Selection** - Choose which Windsurf window to control
-- **Message Sending** - Send prompts to Cascade chat
+Или двойной клик по `run.bat`
 
-## 📋 Roadmap
+## ⚙️ Настройки
 
-- [x] **F1**: Basic window and chat automation
-- [x] **F2**: Model selection automation
-- [x] **F3**: Task queue system
-- [ ] **F4**: Project improvement suggestions
-- [ ] **F5**: Auto-detect task completion
+В GUI можно настроить:
+- **Модель** - Название модели AI (например, claude-3.5-sonnet)
+- **Итерации** - Количество повторений
+- **Прогрев** - Время ожидания Cascade (секунды)
+- **Папка промптов** - Откуда брать файлы с промптами
+- **Рабочие папки** - Папки проектов для работы
+
+## 📋 Горячие клавиши Windsurf
+
+| Действие | Клавиши |
+|----------|---------|
+| Новое окно | Ctrl+Shift+N |
+| Открыть Cascade | Ctrl+L |
+| Выбор модели | Ctrl+/ |
+| Отправить | Enter |
 
 ## 📄 License
 
